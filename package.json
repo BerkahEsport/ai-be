@@ -1,0 +1,32 @@
+{
+  "name": "ai-be",
+  "version": "1.0.0",
+  "description": "Q&A with bot berkahesport.id",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "node run.js"
+  },
+  "keywords": [
+    "botbe-ai",
+    "ai-be",
+    "berkahesport-bot"
+  ],
+  "author": "berkahesport",
+  "license": "ISC",
+  "dependencies": {
+    "@google/generative-ai": "^0.21.0",
+    "@whiskeysockets/baileys": "^6.7.9",
+    "cheerio": "^1.0.0",
+    "file-type": "^19.6.0",
+    "fluent-ffmpeg": "^2.1.3",
+    "formdata-node": "^6.0.3",
+    "got": "^14.4.5",
+    "langdetect": "^0.2.1",
+    "node-webpmux": "^3.2.0",
+    "pdf-parse": "^1.1.1",
+    "qrcode-terminal": "^0.12.0",
+    "ws": "^8.17.1"
+  }
+}
