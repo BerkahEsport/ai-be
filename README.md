@@ -50,19 +50,23 @@ Hello! 😊 I am AutoAI, your smart assistant, ready to answer all your question
 
 Here are some amazing features you can use:
 
-Type play [song title] to search for and play your favorite music.
+_Type self/public in the group if you want to turn off/turn on the bot feature in the group._
 
-Type video [video title] to search for and play videos.
+_Type search [search] to search for videos on Youtube._
 
-Type sticker [image] to convert an image into a sticker.
+_Type play [song title] to search and play music._
 
-Send a YouTube video URL to download video or audio.
+_Type video [video title] to search and play video._
 
-Send a TikTok/Instagram/Facebook URL to download content from those platforms.
+_Type sticker [image] to convert image to sticker._
 
-Send any questions or topics, and I’ll do my best to provide the most accurate answer for you.
+_Send YouTube video URL to download video or audio._
 
-Ask me to create images with the details you provide!
+_Send TikTok/Instagram/Facebook URL to download content from those platforms._
+
+_Send any questions or topics, and I will try to provide the best answer for you._
+
+_Ask me to create images with the details you want._
 
 If you encounter any issues or have questions, don't hesitate to reach out to the admin at WhatsApp.
 
