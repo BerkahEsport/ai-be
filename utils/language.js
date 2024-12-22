@@ -19,6 +19,7 @@ const languages = {
         sticker: "Please send a picture or reply to a picture message and type a sticker to create a sticker.",
         fileName: "Name file: ",
         size: "Size: ",
+        progressFeature: "Feature development in progress!",
         yts: "Copy the URL below that you want to download then paste it into the bot, add mp3 behind the URL if you want to download it in mp3 / song format."
     },
     id: {
@@ -41,6 +42,7 @@ const languages = {
         sticker: "Silakan kirim gambar atau balas pesan gambar dan ketik stiker untuk membuat stiker.",
         fileName: "Nama file: ",
         size: "Ukuran: ",
+        progressFeature: "Pengembangan fitur sedang berlangsung!",
         yts: "Salin url dibawah yang akan kamu unduh kemudian paste ke bot, tambahkan mp3 dibelakang url jika ingin mengunduh dalam bentuk mp3 / lagu."
     }
 }

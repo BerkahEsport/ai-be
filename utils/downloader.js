@@ -228,25 +228,25 @@ export default async (sock, sender, msg, text, buffer, arg, language) => {
             break;
             case 'sfile':
                 await sock.sendMessage(sender, { 
-                    text: 'Feature development in progress!', mentions: [sender] }, {
+                    text: language.progressFeature, mentions: [sender] }, {
                     ephemeralExpiration: 1000000, quoted: msg
                 });
             break;
             case 'telegramSticker':
                 await sock.sendMessage(sender, { 
-                    text: 'Feature development in progress!', mentions: [sender] }, {
+                    text: language.progressFeature, mentions: [sender] }, {
                     ephemeralExpiration: 1000000, quoted: msg
                 });
             break;
             case 'googlePlay':
                 await sock.sendMessage(sender, { 
-                    text: 'Feature development in progress!', mentions: [sender] }, {
+                    text: language.progressFeature, mentions: [sender] }, {
                     ephemeralExpiration: 1000000, quoted: msg
                 });
             break;
             case 'mediafire':
                 await sock.sendMessage(sender, { 
-                    text: 'Feature development in progress!', mentions: [sender] }, {
+                    text: language.progressFeature, mentions: [sender] }, {
                     ephemeralExpiration: 1000000, quoted: msg
                 });
             break;
@@ -256,19 +256,19 @@ export default async (sock, sender, msg, text, buffer, arg, language) => {
             break;
             case 'doodStream':
                 await sock.sendMessage(sender, { 
-                    text: 'Feature development in progress!', mentions: [sender] }, {
+                    text: language.progressFeature, mentions: [sender] }, {
                     ephemeralExpiration: 1000000, quoted: msg
                 });
             break;
             case 'terabox':
                 await sock.sendMessage(sender, { 
-                    text: 'Feature development in progress!', mentions: [sender] }, {
+                    text: language.progressFeature, mentions: [sender] }, {
                     ephemeralExpiration: 1000000, quoted: msg
                 });
             break;
             case 'mega':
                 await sock.sendMessage(sender, { 
-                    text: 'Feature development in progress!', mentions: [sender] }, {
+                    text: language.progressFeature, mentions: [sender] }, {
                     ephemeralExpiration: 1000000, quoted: msg
                 });
             break;
