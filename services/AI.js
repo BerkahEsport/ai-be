@@ -1,3 +1,18 @@
+/*<============== CREDITS ==============>
+	Author: berkahesportid
+	Github: https://github.com/BerkahEsport/
+	Contact me: 62895375950107
+	
+	Do not delete the source code.
+	It is prohibited to sell and buy
+	WhatsApp BOT scripts
+	without the knowledge
+	of the script owner.
+	
+	Selling = Sin 
+	
+	Thank you to Allah S.W.T
+<============== CREDITS ==============>*/
 import got from "got";
 import fs from "fs";
 import path from "path";

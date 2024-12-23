@@ -110,8 +110,20 @@ Berikut ini beberapa fitur yang bisa kamu gunakan:
         return segments
     },
     isAllowedText(text, allowedWords) {
-        const regex = new RegExp(`^(${allowedWords.join('|')})$`, 'i');
-        return regex.test(text.trim());
+        if (allowedWords instanceof RegExp) {
+            return allowedWords.test(text.trim());
+        }
+        if (typeof allowedWords === 'string') {
+            return text.trim() === allowedWords;
+        }
+        if (Array.isArray(allowedWords)) {
+            const escapedWords = allowedWords.map(word =>
+                word.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')
+            );
+            const regex = new RegExp(`^(${escapedWords.join('|')})$`, 'i');
+            return regex.test(text.trim());
+        }
+        return false;
     },
     extractFirstLink(text) {
         const regex = /(https?:\/\/[^\s]+)/i;
