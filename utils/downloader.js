@@ -167,10 +167,10 @@ export default async (sock, sender, msg, text, buffer, arg, language) => {
                 }
                 try {
                     json = await functions.fetchJson(myAPIs+"api/ytmp4?url="+arg);
-                    await sendFile(sender, json.data.video, json.data?.title || "Audio", "", msg);
+                    await sendFile(sender, json.result.link, json.result.title || "Video", "", msg);
                 } catch(e) {
                     json = await functions.fetchJson(RestAPIs+"api/d/youtube?q="+arg);
-                    await sendFile(sender, json.data.video, json.data?.title || "Audio", "", msg);
+                    await sendFile(sender, json.data.video, json.data?.title || "Video", "", msg);
                 }
             break;
             case 'sticker':
