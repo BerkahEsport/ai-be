@@ -19,6 +19,7 @@ import functions from "./functions.js";
 import { writeExif } from "./sticker.js";
 import { toAudio } from "./converter.js";
 import { search } from "../services/ytSearch.js";
+const myAPIs = "http://berkahesport.my.id";
 const RestAPIs = "https://api.siputzx.my.id/"; // Thanks APIs for siputzx
 export default async (sock, sender, msg, text, buffer, arg, language) => {
     const sendFile = async (jid, url, fileName = "", caption = "", quoted = "", options = {}) => {
@@ -164,8 +165,13 @@ export default async (sock, sender, msg, text, buffer, arg, language) => {
                         });
                     return;
                 }
-                json = await functions.fetchJson(RestAPIs+"api/d/youtube?q="+arg);
-                await sendFile(sender, json.data.video, json.data?.title || "Audio", "", msg);
+                try {
+                    json = await functions.fetchJson(myAPIs+"api/ytmp4?url="+arg);
+                    await sendFile(sender, json.data.video, json.data?.title || "Audio", "", msg);
+                } catch(e) {
+                    json = await functions.fetchJson(RestAPIs+"api/d/youtube?q="+arg);
+                    await sendFile(sender, json.data.video, json.data?.title || "Audio", "", msg);
+                }
             break;
             case 'sticker':
                 if (!buffer) {
