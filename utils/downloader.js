@@ -121,9 +121,10 @@ export default async (sock, sender, msg, text, buffer, arg, language) => {
         action = 'soundcloud';
     }
     try {
+        const url = functions.extractFirstLink(text);
+        arg = text.replace(arg, "").trim();
         switch (action) {
             case 'search':
-                arg = text.replace(arg, "").trim();
                 if (!arg) {
                     await sock.sendMessage(sender, { 
                         text: language.textCannotBeEmpty, mentions: [sender] }, {
@@ -139,7 +140,6 @@ export default async (sock, sender, msg, text, buffer, arg, language) => {
                 });
             break
             case 'play':
-                arg = text.replace(arg, "").trim();
                 if (!arg) {
                     await sock.sendMessage(sender, { 
                         text: language.textCannotBeEmpty, mentions: [sender] }, {
@@ -157,7 +157,6 @@ export default async (sock, sender, msg, text, buffer, arg, language) => {
                 }
             break;
             case 'video':
-                arg = text.replace(arg, "").trim();
                 if (!arg) {
                     await sock.sendMessage(sender, { 
                         text: language.textCannotBeEmpty, mentions: [sender] }, {
@@ -183,45 +182,63 @@ export default async (sock, sender, msg, text, buffer, arg, language) => {
                 } else await sendFile(sender, buffer, "Sticker", "", msg, { asSticker: true});
             break
             case 'youtubeVideo':
-                json = await functions.fetchJson(RestAPIs+"api/d/ytmp4?url="+functions.extractFirstLink(text));
-                await sendFile(sender, json.data.dl, json.data?.title || "Video", "", msg);
+                try {
+                    json = await functions.fetchJson(myAPIs+"/api/ytmp4?url="+url);
+                    await sendFile(sender, json.result.link, json.result?.title || "Video", "", msg);
+                } catch(error) {
+                    console.log(error);
+                    json = await functions.fetchJson(RestAPIs+"api/d/ytmp4?url="+url);
+                    await sendFile(sender, json.data.dl, json.data?.title || "Video", "", msg);
+                }
             break;
             case 'youtubeMusic':
-                json = await functions.fetchJson(RestAPIs+"api/d/ytmp3?url="+functions.extractFirstLink(text));
-                await sendFile(sender, json.data.dl, json.data?.title || "Audio", "", msg, {mime: "audio/mpeg"});
+                try {
+                    json = await functions.fetchJson(myAPIs+"/api/ytmp3?url="+url);
+                    await sendFile(sender, json.result.link, json.result?.title || "Video", "", msg);
+                } catch(error) {
+                    console.log(error);
+                    json = await functions.fetchJson(RestAPIs+"api/d/ytmp3?url="+url);
+                    await sendFile(sender, json.data.dl, json.data?.title || "Audio", "", msg, {mime: "audio/mpeg"});
+                }
             break;
             case 'facebook':
-                json = await functions.fetchJson(RestAPIs+"api/d/facebook?url="+functions.extractFirstLink(text));
-                await sendFile(sender, json.data.video, "", "", msg);
+                try {
+                    json = await functions.fetchJson(myAPIs+"/api/facebook?url="+url);
+                    await sendFile(sender, json.result.hd, json.result?.title || "Video", "", msg);
+                } catch(error) {
+                    console.log(error);
+                    json = await functions.fetchJson(RestAPIs+"api/d/facebook?url="+url);
+                    await sendFile(sender, json.data.video, "", "", msg);
+                }
             break;
             case 'instagram':
-                json = await functions.fetchJson(RestAPIs+"api/d/igdl?url="+functions.extractFirstLink(text));
+                json = await functions.fetchJson(RestAPIs+"api/d/igdl?url="+url);
                 for (const item of json.data) {
                     await sendFile(sender, item.url, "", "", msg);
                     await functions.delay(1000);
                 }
             break;
             case 'tiktok':
-                json = await functions.fetchJson(RestAPIs+"api/tiktok?url="+functions.extractFirstLink(text));
+                json = await functions.fetchJson(RestAPIs+"api/tiktok?url="+url);
                 for (const item of json.data.urls) {
                     await sendFile(sender, item, "", "", msg);
                     await functions.delay(1000);
                 }
             break;
             case 'threads':
-                json = await functions.fetchJson("https://btch.us.kg/download/threads?url="+functions.extractFirstLink(text));
+                json = await functions.fetchJson("https://btch.us.kg/download/threads?url="+url);
                 await sendFile(sender, json.result?.video_urls?.[0] ? json.result?.video_urls?.[0] : json.result?.image_urls?.[0], "", "", msg);
             break;
             case 'capcut':
-                json = await functions.fetchJson(RestAPIs+"api/d/capcut?url="+functions.extractFirstLink(text));
+                json = await functions.fetchJson(RestAPIs+"api/d/capcut?url="+url);
                 await sendFile(sender, json.data.originalVideoUrl, "", "", msg);
             break;
             case 'twitter':
-                json = await functions.fetchJson(RestAPIs+"api/d/twitter?url="+functions.extractFirstLink(text));
+                json = await functions.fetchJson(RestAPIs+"api/d/twitter?url="+url);
                 await sendFile(sender, json.data.downloadLink, "", "", msg);
             break;
             case 'pinterest':
-                json = await functions.fetchJson(RestAPIs+"api/d/pinterest?url="+functions.extractFirstLink(text));
+                json = await functions.fetchJson(RestAPIs+"api/d/pinterest?url="+url);
                 await sendFile(sender, json.data.url, "", "", msg);
             break;
             case 'github':
@@ -229,7 +246,7 @@ export default async (sock, sender, msg, text, buffer, arg, language) => {
                 sendFile(sender, data.link, data.filename, "", msg, {asDocument: true});
             break;
             case 'googleDrive':
-                json = await functions.fetchJson(RestAPIs+"api/d/gdrive?url="+functions.extractFirstLink(text));
+                json = await functions.fetchJson(RestAPIs+"api/d/gdrive?url="+url);
                 await sendFile(sender, json.data.download, "", "", msg);
             break;
             case 'sfile':
@@ -257,7 +274,7 @@ export default async (sock, sender, msg, text, buffer, arg, language) => {
                 });
             break;
             case 'spotify':
-                json = await functions.fetchJson(RestAPIs+"api/d/spotify?url="+functions.extractFirstLink(text));
+                json = await functions.fetchJson(RestAPIs+"api/d/spotify?url="+url);
                 await sendFile(sender, json.download, "", "", msg);
             break;
             case 'doodStream':
@@ -279,18 +296,18 @@ export default async (sock, sender, msg, text, buffer, arg, language) => {
                 });
             break;
             case 'snackvideo':
-                json = await functions.fetchJson(RestAPIs+"api/d/snackvideo?url="+functions.extractFirstLink(text));
+                json = await functions.fetchJson(RestAPIs+"api/d/snackvideo?url="+url);
                 await sendFile(sender, json.data.videoUrl, "", "", msg);
             break;
             case 'lahelu':
-                json = await functions.fetchJson(RestAPIs+"api/d/lahelu?url="+functions.extractFirstLink(text));
+                json = await functions.fetchJson(RestAPIs+"api/d/lahelu?url="+url);
                 for (const item of json.result.content) {
                     await sendFile(sender, item.value, "", "", msg);
                     await functions.delay(1000);
                 }
             break;
             case 'soundcloud':
-                json = await functions.fetchJson(RestAPIs+"api/d/soundcloud?url="+functions.extractFirstLink(text));
+                json = await functions.fetchJson(RestAPIs+"api/d/soundcloud?url="+url);
                 await sendFile(sender, json.data.url, "", "", msg);
             break;
             default:

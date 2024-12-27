@@ -197,7 +197,7 @@ Berikut ini beberapa fitur yang bisa kamu gunakan:
                 const headers = {
                     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
                     "Upgrade-Insecure-Requests": "1",
-                    "User-Agent": options.randomUA ? options.randomUA() : "Mozilla/5.0",
+                    "User-Agent": options.randomUA ? this.randomUA() : "Mozilla/5.0",
                     ...options.headers,
                 };
                 const response = await got(PATH, {
