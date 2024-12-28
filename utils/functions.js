@@ -125,6 +125,19 @@ Berikut ini beberapa fitur yang bisa kamu gunakan:
         }
         return false;
     },
+    isValidURL(text) {
+        const urlPattern = /^(https?:\/\/)?([a-zA-Z0-9\-._~%]+)(:[0-9]{1,5})?(\/[a-zA-Z0-9\-._~%]*)*(\?[a-zA-Z0-9\-._~%&=]*)?(#[a-zA-Z0-9\-._~%]*)?$/;
+        if (!urlPattern.test(text)) {
+            return false;
+        }
+        try {
+            const url = new URL(text.startsWith("http") ? text : `http://${text}`);
+            return url.hostname.includes(".");
+        } catch (error) {
+            console.error(error);
+            return false;
+        }
+    },
     extractFirstLink(text) {
         const regex = /(https?:\/\/[^\s]+)/i;
         const match = text.match(regex);

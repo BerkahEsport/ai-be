@@ -21,7 +21,7 @@ import { toAudio } from "./converter.js";
 import { search } from "../services/ytSearch.js";
 const myAPIs = "http://berkahesport.my.id";
 const RestAPIs = "https://api.siputzx.my.id/"; // Thanks APIs for siputzx
-export default async (sock, sender, msg, text, buffer, arg, language) => {
+export default async (sock, sender, msg, text, buffer, command, args, language) => {
     const sendFile = async (jid, url, fileName = "", caption = "", quoted = "", options = {}) => {
 		let { mimetype: mime, data: buffer, ext, filename, size } = await functions.fetchBuffer(url);
         filename = typeof filename == "object" ? functions.getRandom("unknown", 3) : filename
@@ -65,13 +65,13 @@ export default async (sock, sender, msg, text, buffer, arg, language) => {
 	}
 
     let action = 'default', json = {};
-    if (/^cari|search$/i.test(arg)) {
+    if (/^cari|search$/i.test(command)) {
         action = 'search';
-    } else if (/^(play|lagu|putar)$/i.test(arg)) {
+    } else if (/^(play|lagu|putar)$/i.test(command)) {
         action = 'play';
-    } else if (/^video$/i.test(arg)) {
+    } else if (/^video$/i.test(command)) {
         action = 'video';
-    } else if (/^(s|sticker)$/i.test(arg)) {
+    } else if (/^(s|sticker)$/i.test(command)) {
         action = 'sticker';
     } else if (text.includes('youtube.com') || text.includes('youtu.be')) {
         if (text.includes('music.youtube.com') || functions.isAllowedText(text, ['mp3','audio', 'musik'])) {
@@ -103,7 +103,7 @@ export default async (sock, sender, msg, text, buffer, arg, language) => {
         action = 'googlePlay';
     } else if (text.includes('mediafire.com')) {
         action = 'mediafire';
-    } else if (text.includes('pinterest.com')) {
+    } else if (text.includes('pinterest.com') || text.toLowerCase().startsWith('pinterest')) {
         action = 'pinterest';
     } else if (text.includes('spotify.com')) {
         action = 'spotify';
@@ -122,17 +122,16 @@ export default async (sock, sender, msg, text, buffer, arg, language) => {
     }
     try {
         const url = functions.extractFirstLink(text);
-        arg = text.replace(arg, "").trim();
         switch (action) {
             case 'search':
-                if (!arg) {
+                if (!args) {
                     await sock.sendMessage(sender, { 
                         text: language.textCannotBeEmpty, mentions: [sender] }, {
                         ephemeralExpiration: 1000000, quoted: msg
                     });
                     return;
                 }
-                json = await search(arg);
+                json = await search(args);
                 let caption = functions.mapList(json, "YOUTUBE SEARCH", language.yts);
                 await sock.sendMessage(sender, { 
                     text: caption, mentions: [sender] }, {
@@ -140,24 +139,7 @@ export default async (sock, sender, msg, text, buffer, arg, language) => {
                 });
             break
             case 'play':
-                if (!arg) {
-                    await sock.sendMessage(sender, { 
-                        text: language.textCannotBeEmpty, mentions: [sender] }, {
-                        ephemeralExpiration: 1000000, quoted: msg
-                        });
-                    return;
-                }
-                json = await functions.fetchJson(RestAPIs+"api/d/youtube?q="+arg);
-                const response = await functions.fetchBuffer(json.data.sounds);
-                if (/audio/.test(response.mimetype)) {
-                    await sendFile(sender, response.data, json.data?.title || "Audio", "", msg);
-                } else {
-                    const mp3 = await toAudio(response.data, response.ext, json.data?.title);
-                    await sendFile(sender, mp3.data, json.data?.title || "Audio", "", msg);
-                }
-            break;
-            case 'video':
-                if (!arg) {
+                if (!args) {
                     await sock.sendMessage(sender, { 
                         text: language.textCannotBeEmpty, mentions: [sender] }, {
                         ephemeralExpiration: 1000000, quoted: msg
@@ -165,10 +147,33 @@ export default async (sock, sender, msg, text, buffer, arg, language) => {
                     return;
                 }
                 try {
-                    json = await functions.fetchJson(myAPIs+"api/ytmp4?url="+arg);
+                    json = await functions.fetchJson(RestAPIs+"api/d/youtube?q="+args);
+                    const response = await functions.fetchBuffer(json.data.sounds);
+                    if (/audio/.test(response.mimetype)) {
+                        await sendFile(sender, response.data, json.data?.title || "Audio", "", msg);
+                    } else {
+                        const mp3 = await toAudio(response.data, response.ext, json.data?.title);
+                        await sendFile(sender, mp3.data, json.data?.title || "Audio", "", msg);
+                    }
+                } catch(e) {
+                    console.log(e);
+                    json = await functions.fetchJson(myAPIs+"/api/ytmp3?url="+args);
+                    await sendFile(sender, json.result.link, json.result?.title || "Audio", "", msg);
+                }
+            break;
+            case 'video':
+                if (!args) {
+                    await sock.sendMessage(sender, { 
+                        text: language.textCannotBeEmpty, mentions: [sender] }, {
+                        ephemeralExpiration: 1000000, quoted: msg
+                        });
+                    return;
+                }
+                try {
+                    json = await functions.fetchJson(myAPIs+"api/ytmp4?url="+args);
                     await sendFile(sender, json.result.link, json.result.title || "Video", "", msg);
                 } catch(e) {
-                    json = await functions.fetchJson(RestAPIs+"api/d/youtube?q="+arg);
+                    json = await functions.fetchJson(RestAPIs+"api/d/youtube?q="+args);
                     await sendFile(sender, json.data.video, json.data?.title || "Video", "", msg);
                 }
             break;
@@ -212,37 +217,85 @@ export default async (sock, sender, msg, text, buffer, arg, language) => {
                 }
             break;
             case 'instagram':
-                json = await functions.fetchJson(RestAPIs+"api/d/igdl?url="+url);
-                for (const item of json.data) {
-                    await sendFile(sender, item.url, "", "", msg);
-                    await functions.delay(1000);
+                try {
+                    json = await functions.fetchJson(myAPIs+"/api/instagram?url="+url);
+                    for (const item of json.result) {
+                        await sendFile(sender, item.url, "", "", msg);
+                        await functions.delay(1000);
+                    }
+                } catch(error) {
+                    console.log(error);
+                    json = await functions.fetchJson(RestAPIs+"api/d/igdl?url="+url);
+                    for (const item of json.data) {
+                        await sendFile(sender, item.url, "", "", msg);
+                        await functions.delay(1000);
+                    }
                 }
             break;
             case 'tiktok':
-                json = await functions.fetchJson(RestAPIs+"api/tiktok?url="+url);
-                for (const item of json.data.urls) {
-                    await sendFile(sender, item, "", "", msg);
-                    await functions.delay(1000);
+                try {
+                    json = await functions.fetchJson(myAPIs+"/api/tiktok?url="+url);
+                    await sendFile(sender, json.result.link, "", "", msg);
+                } catch(error) {
+                    console.log(error);
+                    json = await functions.fetchJson(RestAPIs+"api/tiktok?url="+url);
+                    for (const item of json.data.urls) {
+                        await sendFile(sender, item, "", "", msg);
+                        await functions.delay(1000);
+                    }
                 }
             break;
             case 'threads':
-                json = await functions.fetchJson("https://btch.us.kg/download/threads?url="+url);
-                await sendFile(sender, json.result?.video_urls?.[0] ? json.result?.video_urls?.[0] : json.result?.image_urls?.[0], "", "", msg);
+                try {
+                    json = await functions.fetchJson(myAPIs+"/api/threads?url="+url);
+                    await sendFile(sender, json.result?.video_urls?.[0] ? json.result?.video_urls?.[0] : json.result?.image_urls?.[0], "", "", msg);
+                } catch(error) {
+                    console.log(error);
+                    json = await functions.fetchJson("https://btch.us.kg/download/threads?url="+url);
+                    await sendFile(sender, json.result?.video_urls?.[0] ? json.result?.video_urls?.[0] : json.result?.image_urls?.[0], "", "", msg);
+                }
             break;
             case 'capcut':
-                json = await functions.fetchJson(RestAPIs+"api/d/capcut?url="+url);
-                await sendFile(sender, json.data.originalVideoUrl, "", "", msg);
+                try {
+                    json = await functions.fetchJson(myAPIs+"/api/capcut?url="+url);
+                    await sendFile(sender, json.result.video, "", "", msg);
+                } catch(error) {
+                    console.log(error);
+                    json = await functions.fetchJson(RestAPIs+"api/d/capcut?url="+url);
+                    await sendFile(sender, json.data.originalVideoUrl, "", "", msg);
+                }
             break;
             case 'twitter':
-                json = await functions.fetchJson(RestAPIs+"api/d/twitter?url="+url);
-                await sendFile(sender, json.data.downloadLink, "", "", msg);
+                try {
+                    json = await functions.fetchJson(myAPIs+"/api/twitter?url="+url);
+                    await sendFile(sender, json.result.link, "", "", msg);
+                } catch(error) {
+                    console.log(error);
+                    json = await functions.fetchJson(RestAPIs+"api/d/twitter?url="+url);
+                    await sendFile(sender, json.data.downloadLink, "", "", msg);
+                }
             break;
             case 'pinterest':
-                json = await functions.fetchJson(RestAPIs+"api/d/pinterest?url="+url);
-                await sendFile(sender, json.data.url, "", "", msg);
+                try {
+                    if (functions.isValidURL(text)) {
+                        json = await functions.fetchJson(RestAPIs+"api/d/pinterest?url="+url);
+                        await sendFile(sender, json.data.url, "", "", msg);
+                    }
+                    if (!args) {
+                        msg.reply('Input text to seacrh via Pinterest.');
+                        return false;
+                    }
+                    json = await functions.fetchJson(myAPIs+"/api/pinterest?text="+args);
+                    for (const item of json.result) {
+                        await sendFile(sender, item, "", "", msg);
+                        await functions.delay(1000);
+                    }
+                } catch(error) {
+                    console.log(error);
+                }
             break;
             case 'github':
-                const data = await getGitHubRepoInfo(regex)
+                const data = await getGitHubRepoInfo(args);
                 sendFile(sender, data.link, data.filename, "", msg, {asDocument: true});
             break;
             case 'googleDrive':
@@ -268,10 +321,13 @@ export default async (sock, sender, msg, text, buffer, arg, language) => {
                 });
             break;
             case 'mediafire':
-                await sock.sendMessage(sender, { 
-                    text: language.progressFeature, mentions: [sender] }, {
-                    ephemeralExpiration: 1000000, quoted: msg
-                });
+                try {
+                    json = await functions.fetchJson(myAPIs+"/api/mediafire?url="+url);
+                    await sendFile(sender, json.result.video, "", "", msg);
+                } catch(error) {
+                    console.log(error);
+                    msg.reply('Error, please try again later.');
+                }
             break;
             case 'spotify':
                 json = await functions.fetchJson(RestAPIs+"api/d/spotify?url="+url);
