@@ -147,17 +147,18 @@ export default async (sock, sender, msg, text, buffer, command, args, language) 
                     return;
                 }
                 try {
-                    json = await functions.fetchJson(RestAPIs+"api/d/youtube?q="+args);
-                    const response = await functions.fetchBuffer(json.data.sounds);
+                    const data = await functions.fetchJson(myAPIs+"/api/ytsearch?text="+args);
+                    json = await functions.fetchJson(RestAPIs+"/api/d/ytmp3?url="+data.result[0].url);
+                    const response = await functions.fetchBuffer(json.data.dl);
                     if (/audio/.test(response.mimetype)) {
-                        await sendFile(sender, response.data, json.data?.title || "Audio", "", msg);
+                        await sendFile(sender, response.data.dl, json.data?.title || "Audio", "", msg);
                     } else {
                         const mp3 = await toAudio(response.data, response.ext, json.data?.title);
-                        await sendFile(sender, mp3.data, json.data?.title || "Audio", "", msg);
+                        await sendFile(sender, mp3.data.dl, json.data?.title || "Audio", "", msg);
                     }
                 } catch(e) {
                     console.log(e);
-                    json = await functions.fetchJson(myAPIs+"/api/ytmp3?url="+args);
+                    json = await functions.fetchJson(myAPIs+"/api/play?text="+args);
                     await sendFile(sender, json.result.link, json.result?.title || "Audio", "", msg);
                 }
             break;
